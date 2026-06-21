@@ -1,0 +1,36 @@
+name: Run Tests
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Install Astral's uv
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          # Enable caching to speed up workflows
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12" 
+
+      # Install the project and its dependencies (including dev dependencies)
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      # Run pytest inside the uv environment
+      - name: Run pytest
+        run: uv run pytest
